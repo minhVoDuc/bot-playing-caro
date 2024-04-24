@@ -4,7 +4,7 @@ new_game = Game()
 new_game.map.show() 
 
 p = 0
-for i in range(3):
+for i in range(9):
   new_game.play(p)
   new_game.map.show()
   p = 1 - p

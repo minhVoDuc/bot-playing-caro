@@ -2,22 +2,22 @@ from modules.map import Map
 import modules.agent as player
 
 def standardize(s):
-  if s<20:
-    s = 20
+  # if s<20:
+  #   s = 20
   if s>100:
     s = 100
   return s
 
-def select_player_type():
+def select_player_type(map, order):
   type = 'undef'
   while type == 'undef':
     type = input('Choose player type ([H]uman/[R]andom/[S]mart): ')
     if type == 'H' or type == 'h' or type == 'human':
       p = player.Human()
     elif type == 'R' or type == 'r' or type == 'random':
-      p = player.RandomAgent()
+      p = player.RandomAgent(map, order)
     elif type == 'S' or type == 's' or type == 'smart':
-      p = player.SmartAgent()
+      p = player.SmartAgent(map, order)
     else:
       type = 'undef'
       print('Insert error! Retry!')
@@ -31,8 +31,8 @@ class Game:
     self.map = Map(h, w)
     # select player type [Human, Random or Smart]
     self.p = []
-    for _ in range(2):
-      p = select_player_type()
+    for i in range(2):
+      p = select_player_type(self.map, i)
       self.p.append(p)
 
     # init winner - default 0: no winner
