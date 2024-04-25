@@ -14,6 +14,11 @@ class RandomAgent(Agent):
 	pass
 
 class SmartAgent(Agent):
+	def __init__(self, map, order):
+		Agent.__init__(self, map, order)
+		self.memo = {}
+		self.bestPossible = (0, 0)
+
 	def checkRow(self): 	#return index
 		for i in range(self.map.h):
 			checkVal = -1
@@ -27,7 +32,10 @@ class SmartAgent(Agent):
 				else:
 					checkVal = self.map.cells[i][j]
 					count = 1
+				if (count > self.bestPossible[1]):
+					self.bestPossible = (self.map.cells[i][j], count)	
 				if count >= WIN_TARGET:
+					self.bestPossible = (self.map.cells[i][j], count)	
 					return (i, j)
 		return (-1, -1)
 
@@ -44,7 +52,10 @@ class SmartAgent(Agent):
 				else:
 					checkVal = self.map.cells[j][i]
 					count = 1
+				if (count > self.bestPossible[1]):
+					self.bestPossible = (self.map.cells[j][i], count)
 				if count >= WIN_TARGET:
+					self.bestPossible = (self.map.cells[j][i], count)
 					return (j, i)
 		return (-1, -1)
 
@@ -66,7 +77,10 @@ class SmartAgent(Agent):
 				else:
 					checkVal = tmp_map[tmp][j]
 					count = 1
+				if (count > self.bestPossible[1]):
+					self.bestPossible = (tmp_map[tmp][j], count)
 				if count >= WIN_TARGET:
+					self.bestPossible = (tmp_map[tmp][j], count)
 					return (tmp, j)	
 				tmp += 1
 
@@ -85,7 +99,10 @@ class SmartAgent(Agent):
 				else:
 					checkVal = tmp_map[j][tmp]
 					count = 1
+				if (count > self.bestPossible[1]):
+					self.bestPossible = (tmp_map[j][tmp], count)
 				if count >= WIN_TARGET:
+					self.bestPossible = (tmp_map[j][tmp], count)
 					return (j, tmp)
 				tmp += 1
 		
@@ -106,7 +123,10 @@ class SmartAgent(Agent):
 				else:
 					checkVal = tmp_map[tmp][j]
 					count = 1
+				if (count > self.bestPossible[1]):
+					self.bestPossible = (tmp_map[tmp][j], count)
 				if count >= WIN_TARGET:
+					self.bestPossible = (tmp_map[tmp][j], count)
 					return (tmp, j)	
 				tmp += 1
 
@@ -125,86 +145,76 @@ class SmartAgent(Agent):
 				else:
 					checkVal = tmp_map[j][tmp]
 					count = 1
+				if (count > self.bestPossible[1]):
+					self.bestPossible = (tmp_map[j][tmp], count)
 				if count >= WIN_TARGET:
+					self.bestPossible = (tmp_map[j][tmp], count)
 					return (j, tmp)
 				tmp += 1
   
 		return (-1, -1)
 
 	def checkWinner(self):
-		indices = self.checkRow()
-		if (indices != (-1, -1)):
-			return self.map.cells[indices[0]][indices[1]]
-		indices = self.checkCol()
-		if (indices != (-1, -1)):
-			return self.map.cells[indices[0]][indices[1]]
-		indices = self.checkDiag()
-		if (indices != (-1, -1)):
-			return self.map.cells[indices[0]][indices[1]]
+		for check in [self.checkRow, self.checkCol, self.checkDiag]:
+			indices = check()
+			if indices != (-1, -1):
+				return self.map.cells[indices[0]][indices[1]]
 		return 0
-	
+ 
 	def isBoardFinished(self):
-		for i in range(self.map.h):
-			for j in range(self.map.w):
-				if self.map.cells[i][j] == 0:
-					return False
-		return True
-	
-	def minimax(self, depth, isMax):
-		# Base cases
+		return not np.any(np.array(self.map.cells) == 0)
+ 
+	def minimax(self, depth, alpha, beta, isMax, maxDepth):
+		state = tuple(map(tuple, self.map.cells))
+		if (state, depth, isMax) in self.memo:
+			return self.memo[(state, depth, isMax)]
+
 		winner = self.checkWinner()
-		if (winner == self.player_order + 1):
-			score = 100 - depth
-			return score
-		elif (winner == 1 - self.player_order + 1):
-			score = -100 + depth
-			return score
-		if (self.isBoardFinished()):
+		if winner == self.player_order + 1:
+			return 100 - depth
+		elif winner == 1 - self.player_order + 1:
+			return -100 + depth
+		elif depth == maxDepth:
+			if self.bestPossible[0] == self.player_order + 1:
+				return 100 - (100 // self.bestPossible[1])
+			elif self.bestPossible[0] == 1 - self.player_order + 1:
+				return -100 + (100 // self.bestPossible[1])
+		elif self.isBoardFinished():
 			return 0
-		
-		# Max: agent
-		if (isMax == True):
-			bestScore = -1000
-			for i in range(self.map.h):
-				for j in range(self.map.w):
-					if self.map.cells[i][j] == 0:
-						self.map.cells[i][j] = self.player_order + 1
-						bestScore = max(bestScore, self.minimax(depth+1, not isMax))
-						self.map.cells[i][j] = 0
-			return bestScore
-		
-		# Min: opponent
-		elif (isMax == False):
-			bestScore = 1000
-			for i in range(self.map.h):
-				for j in range(self.map.w):
-					if self.map.cells[i][j] == 0:
-						self.map.cells[i][j] = (1 - self.player_order) + 1
-						bestScore = min(bestScore, self.minimax(depth+1, not isMax))
-						self.map.cells[i][j] = 0
-			return bestScore
+
+		bestScore = -1000 if isMax else 1000
+		empty_cells = np.where(np.array(self.map.cells) == 0)
+		for i, j in zip(*empty_cells):
+			self.map.cells[i][j] = self.player_order + 1 if isMax else 1 - self.player_order + 1
+			score = self.minimax(depth + 1, alpha, beta, not isMax, maxDepth)
+			self.map.cells[i][j] = 0
+
+			if isMax:
+				bestScore = max(score, bestScore)
+				alpha = max(alpha, score)
+			else:
+				bestScore = min(score, bestScore)
+				beta = min(beta, score)
+
+			if beta <= alpha:
+				break
+		self.memo[(state, depth, isMax)] = bestScore
+		return bestScore
 
 	def findBestMove(self):
-		# Find Max
 		bestScore = -1000
 		bestMove = (-1, -1)
-		for i in range(self.map.h):
-			for j in range(self.map.w):
-				if (self.map.cells[i][j] == 0):
-					self.map.cells[i][j] = self.player_order + 1
-					# check Min to fin largest min
-					moveScore = self.minimax(0, False)
-					# print("MOVE SCORE:", moveScore)
-					# print(f'MOVE: ({i},{j})')
-					self.map.cells[i][j] = 0
-					if (moveScore > bestScore):
-						bestMove = (i, j)
-						bestScore = moveScore
-					# print("BEST SCORE:", bestScore)
+		empty_cells = np.where(np.array(self.map.cells) == 0)
+		for i, j in zip(*empty_cells):
+			self.map.cells[i][j] = self.player_order + 1
+			moveScore = self.minimax(0, -1000, 1000, False, maxDepth = 3)
+			self.map.cells[i][j] = 0
+			if moveScore > bestScore:
+				bestMove = (i, j)
+				bestScore = moveScore
 		return bestMove
-	
+
 	def choose_cell(self):
-		# print("IN")
 		print("AI chose:")
 		return self.findBestMove()
 
