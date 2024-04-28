@@ -29,6 +29,7 @@ class Game:
     h = standardize(int(input('Insert map height (20-100): ')))
     w = standardize(int(input('Insert map width (20-100): ')))
     self.map = Map(h, w)
+    self.lastMove = (-1, -1)
     # select player type [Human, Random or Smart]
     self.p = []
     for i in range(2):
@@ -43,8 +44,8 @@ class Game:
     pass
 
   def play(self, i):
-    # self.map.cells = [[1, 0, 0],[0,0,0],[0,0,0]]
-    (x,y) = self.p[i].choose_cell()
+    (x,y) = self.p[i].choose_cell(self.lastMove)
+    self.lastMove = (x,y)
     self.map.play(i+1, x, y)
 
   def check(self, p):
