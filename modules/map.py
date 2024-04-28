@@ -2,8 +2,8 @@ class Map:
 	def __init__(self, h=20, w=20):
 		self.h = h
 		self.w = w
-		# self.cells = [[0, 1, 0],[0,1,0],[0,2,2]]
-		self.cells = [[0 for _ in range(w)] for _ in range(h)]
+		self.cells = [[1,2,0,0],[0,1,0,0],[0,0,2,0],[0,0,0,0]]
+		# self.cells = [[0 for _ in range(w)] for _ in range(h)]
 
 	def get(self):
 		return self.cells

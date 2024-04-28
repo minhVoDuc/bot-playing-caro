@@ -2,7 +2,7 @@ import numpy as np
 
 WIN_TARGET = 3
 
-# f = open("res2.txt", "a")
+f = open("res2.txt", "a")
 
 class Agent:
 	def __init__(self, map, order):
@@ -42,10 +42,10 @@ class SmartAgent(Agent):
 					self.bestPossible = (self.map.cells[i][j], count)	
 				if count >= WIN_TARGET:
 					self.bestPossible = (self.map.cells[i][j], count)
-					# f.write("WIN ROW!\n")
+					f.write("WIN ROW!\n")
 					return self.map.cells[i][j]
 					# return (i, j)
-		# f.write("NOT WIN ROW!\n")
+		f.write("NOT WIN ROW!\n")
 		return 0
 		# return (-1, -1)
 
@@ -60,7 +60,7 @@ class SmartAgent(Agent):
 				elif (self.map.cells[j][i] == checkVal):
 					count += 1
 				else:
-					if self.map.cells[i][j] != 0:
+					if self.map.cells[j][i] != 0:
 						checkVal = self.map.cells[j][i]
 						count = 1
 					else:
@@ -69,11 +69,11 @@ class SmartAgent(Agent):
 				if (count > self.bestPossible[1]):
 					self.bestPossible = (self.map.cells[j][i], count)
 				if count >= WIN_TARGET:
-					# f.write("WIN COL!\n")
+					f.write("WIN COL!\n")
 					self.bestPossible = (self.map.cells[j][i], count)
 					return self.map.cells[j][i]
 					# return (j, i)
-		# f.write("NOT WIN COL!\n")
+		f.write("NOT WIN COL!\n")
 		return 0
 		# return (-1, -1)
 
@@ -103,11 +103,11 @@ class SmartAgent(Agent):
 					self.bestPossible = (tmp_map[tmp][j], count)
 				if count >= WIN_TARGET:
 					self.bestPossible = (tmp_map[tmp][j], count)
-					# f.write("WIN DIAG LOWER!\n")
+					f.write("WIN DIAG LOWER!\n")
 					return tmp_map[tmp][j]
 					# return (tmp, j)	
 				tmp += 1
-		# f.write("NOT WIN DIAG LOWER!\n")
+		f.write("NOT WIN DIAG LOWER!\n")
 
 		for i in range(1, self.map.w): # upper triangle
 			tmp = i
@@ -132,11 +132,11 @@ class SmartAgent(Agent):
 					self.bestPossible = (tmp_map[j][tmp], count)
 				if count >= WIN_TARGET:
 					self.bestPossible = (tmp_map[j][tmp], count)
-					# f.write("WIN DIAG UPPER!\n")
+					f.write("WIN DIAG UPPER!\n")
 					return tmp_map[j][tmp]
 					# return (j, tmp)
 				tmp += 1
-		# f.write("NOT WIN DIAG UPPER!\n")
+		f.write("NOT WIN DIAG UPPER!\n")
 
 		# r->l
 		tmp_map = np.fliplr(tmp_map)
@@ -163,11 +163,11 @@ class SmartAgent(Agent):
 					self.bestPossible = (tmp_map[tmp][j], count)
 				if count >= WIN_TARGET:
 					self.bestPossible = (tmp_map[tmp][j], count)
-					# f.write("WIN DIAG FLIPPED LOWER!\n")
+					f.write("WIN DIAG FLIPPED LOWER!\n")
 					return tmp_map[tmp][j]
 					# return (tmp, j)	
 				tmp += 1
-		# f.write("NOT WIN DIAG FLIPPED LOWER!\n")
+		f.write("NOT WIN DIAG FLIPPED LOWER!\n")
 
 		for i in range(1, self.map.w): # upper triangle
 			tmp = i
@@ -192,12 +192,12 @@ class SmartAgent(Agent):
 					self.bestPossible = (tmp_map[j][tmp], count)
 				if count >= WIN_TARGET:
 					self.bestPossible = (tmp_map[j][tmp], count)
-					# f.write("WIN DIAG FLIPPED UPPER!\n")
+					f.write("WIN DIAG FLIPPED UPPER!\n")
 					return tmp_map[j][tmp]
 					# return (j, tmp)
 				tmp += 1
-		# f.write("NOT WIN DIAG FLIPPED UPPER!\n")
-		# f.write("NOT WIN DIAG!\n")
+		f.write("NOT WIN DIAG FLIPPED UPPER!\n")
+		f.write("NOT WIN DIAG!\n")
 		return 0
 		# return (-1, -1)
 
@@ -222,12 +222,12 @@ class SmartAgent(Agent):
 		winner = self.checkWinner()
 		if winner == self.player_order + 1:
 			# self.show()
-			# f.write(f"WINNER VALUE VS PLAYER ORDER: {winner}, {self.player_order}\n")
-			# f.write("PLAYER WON\n")
+			f.write(f"WINNER VALUE VS PLAYER ORDER: {winner}, {self.player_order}\n")
+			f.write("PLAYER WON\n")
 			return 100 - depth
 		elif winner == 1 - self.player_order + 1:
-			# f.write(f"WINNER VALUE VS PLAYER ORDER: {winner}, {self.player_order}\n")
-			# f.write("OPPONENT WON\n")
+			f.write(f"WINNER VALUE VS PLAYER ORDER: {winner}, {self.player_order}\n")
+			f.write("OPPONENT WON\n")
 			return -100 + depth
 		elif depth == maxDepth:
 			# return 0
@@ -242,20 +242,20 @@ class SmartAgent(Agent):
 		empty_cells = np.where(np.array(self.map.cells) == 0)
 		for i, j in zip(*empty_cells):
 			self.map.cells[i][j] = self.player_order + 1 if isMax else 1 - self.player_order + 1
-			# f.write(f"ITERATE MINIMAX: {(i,j)}, {isMax}\n")
+			f.write(f"ITERATE MINIMAX: {(i,j)}, {isMax}\n")
 			self.show()
 			score = self.minimax(depth + 1, alpha, beta, not isMax, maxDepth)
 			self.map.cells[i][j] = 0
 
 			if isMax:
-				# f.write(f"CURRENT SCORE MAX VS CANDIDATE: {(i,j)}, {bestScore}, {score}\n")
+				f.write(f"CURRENT SCORE MAX VS CANDIDATE: {(i,j)}, {bestScore}, {score}\n")
 				bestScore = max(score, bestScore)
-				# f.write(f"BEST SCORE MINIMAX AFTER: {(i,j)}, {isMax}, {bestScore}\n")
+				f.write(f"BEST SCORE MINIMAX AFTER: {(i,j)}, {isMax}, {bestScore}\n")
 				alpha = max(alpha, score)
 			else:
-				# f.write(f"CURRENT SCORE MIN VS CANDIDATE: {(i,j)}, {bestScore}, {score}\n")
+				f.write(f"CURRENT SCORE MIN VS CANDIDATE: {(i,j)}, {bestScore}, {score}\n")
 				bestScore = min(score, bestScore)
-				# f.write(f"BEST SCORE MINIMAX AFTER: {(i,j)}, {isMax}, {bestScore}\n")
+				f.write(f"BEST SCORE MINIMAX AFTER: {(i,j)}, {isMax}, {bestScore}\n")
 				beta = min(beta, score)
 
 			if beta <= alpha:
@@ -268,8 +268,8 @@ class SmartAgent(Agent):
 			p_line = ""
 			for cell in line:
 				p_line = p_line + str(cell) + ' '
-			# f.write(f"{p_line}\n")
-		# f.write("\n")
+			f.write(f"{p_line}\n")
+		f.write("\n")
 
 	def findBestMove(self):
 		bestScore = -1000
@@ -277,15 +277,15 @@ class SmartAgent(Agent):
 		empty_cells = np.where(np.array(self.map.cells) == 0)
 		for i, j in zip(*empty_cells):
 			self.map.cells[i][j] = self.player_order + 1
-			# f.write(f"SEARCH NEW STATE: {(i, j)}\n")
+			f.write(f"SEARCH NEW STATE: {(i, j)}\n")
 			self.show()
 			moveScore = self.minimax(0, -1000, 1000, False, maxDepth = 9)
 			self.map.cells[i][j] = 0
-			# f.write(f"MOVE SCORE AFTER MINIMAX VS BEST SCORE: {(i,j)}, {moveScore}, {bestScore}\n")
+			f.write(f"MOVE SCORE AFTER MINIMAX VS BEST SCORE: {(i,j)}, {moveScore}, {bestScore}\n")
 			if moveScore > bestScore:
 				bestMove = (i, j)
 				bestScore = moveScore
-		# f.close()
+		f.close()
 		return bestMove
 
 	def choose_cell(self):
