@@ -43,6 +43,7 @@ class Game:
     pass
 
   def play(self, i):
+    # self.map.cells = [[1, 0, 0],[0,0,0],[0,0,0]]
     (x,y) = self.p[i].choose_cell()
     self.map.play(i+1, x, y)
 
