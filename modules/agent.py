@@ -19,8 +19,7 @@ class RandomAgent(Agent):
 class SmartAgent(Agent):
 	def __init__(self, map, order):
 		Agent.__init__(self, map, order)
-		self.memo = {}
-		self.bestPossible = (0, 0)
+		# self.memo = {}
 
 	def checkRow(self): 	#return index
 		for i in range(self.map.h):
@@ -39,10 +38,7 @@ class SmartAgent(Agent):
 					else:
 						checkVal = -1
 						count = 0
-				# if (count > self.bestPossible[1]):
-				# 	self.bestPossible = (self.map.cells[i][j], count)	
 				if count >= WIN_TARGET:
-					# self.bestPossible = (self.map.cells[i][j], count)
 					# f.write("WIN ROW!\n")
 					return self.map.cells[i][j]
 					# return (i, j)
@@ -67,11 +63,8 @@ class SmartAgent(Agent):
 					else:
 						checkVal = -1
 						count = 0
-				# if (count > self.bestPossible[1]):
-				# 	self.bestPossible = (self.map.cells[j][i], count)
 				if count >= WIN_TARGET:
 					# f.write("WIN COL!\n")
-					# self.bestPossible = (self.map.cells[j][i], count)
 					return self.map.cells[j][i]
 					# return (j, i)
 		# f.write("NOT WIN COL!\n")
@@ -100,10 +93,7 @@ class SmartAgent(Agent):
 					else:
 						checkVal = -1
 						count = 0
-				# if (count > self.bestPossible[1]):
-				# 	self.bestPossible = (tmp_map[tmp][j], count)
 				if count >= WIN_TARGET:
-					# self.bestPossible = (tmp_map[tmp][j], count)
 					# f.write("WIN DIAG LOWER!\n")
 					return tmp_map[tmp][j]
 					# return (tmp, j)	
@@ -129,10 +119,7 @@ class SmartAgent(Agent):
 					else:
 						checkVal = -1
 						count =0
-				# if (count > self.bestPossible[1]):
-				# 	self.bestPossible = (tmp_map[j][tmp], count)
 				if count >= WIN_TARGET:
-					# self.bestPossible = (tmp_map[j][tmp], count)
 					# f.write("WIN DIAG UPPER!\n")
 					return tmp_map[j][tmp]
 					# return (j, tmp)
@@ -160,10 +147,7 @@ class SmartAgent(Agent):
 					else:
 						checkVal = -1
 						count = 0
-				# if (count > self.bestPossible[1]):
-				# 	self.bestPossible = (tmp_map[tmp][j], count)
 				if count >= WIN_TARGET:
-					# self.bestPossible = (tmp_map[tmp][j], count)
 					# f.write("WIN DIAG FLIPPED LOWER!\n")
 					return tmp_map[tmp][j]
 					# return (tmp, j)	
@@ -189,10 +173,7 @@ class SmartAgent(Agent):
 					else:
 						checkVal = -1
 						count =0
-				# if (count > self.bestPossible[1]):
-				# 	self.bestPossible = (tmp_map[j][tmp], count)
 				if count >= WIN_TARGET:
-					# self.bestPossible = (tmp_map[j][tmp], count)
 					# f.write("WIN DIAG FLIPPED UPPER!\n")
 					return tmp_map[j][tmp]
 					# return (j, tmp)
@@ -229,23 +210,23 @@ class SmartAgent(Agent):
 					if self.player_order + 1 in row and 1 - self.player_order + 1 not in row:
 						unique, countVal = np.unique(row, return_counts=True)
 						counts = dict(zip(unique, countVal))
-						if counts[self.player_order + 1] >= WIN_TARGET // 2:
+						if counts[self.player_order + 1] >= math.ceil(WIN_TARGET / 2):
 							player_potential_wins += 1
 					elif 1 - self.player_order + 1 in row and self.player_order + 1 not in row:
 						unique, countVal = np.unique(row, return_counts=True)
 						counts = dict(zip(unique, countVal))
-						if counts[1 - self.player_order + 1] >= WIN_TARGET // 2:
+						if counts[1 - self.player_order + 1] >= math.ceil(WIN_TARGET / 2):
 							opponent_potential_wins += 1
 				if 0 in col:
 					if self.player_order + 1 in col and 1 - self.player_order + 1 not in col:
 						unique, countVal = np.unique(col, return_counts=True)
 						counts = dict(zip(unique, countVal))
-						if counts[self.player_order + 1] >= WIN_TARGET // 2:
+						if counts[self.player_order + 1] >= math.ceil(WIN_TARGET / 2):
 							player_potential_wins += 1
 					elif 1 - self.player_order + 1 in col and self.player_order + 1 not in col:
 						unique, countVal = np.unique(col, return_counts=True)
 						counts = dict(zip(unique, countVal))
-						if counts[1 - self.player_order + 1] >= WIN_TARGET // 2:
+						if counts[1 - self.player_order + 1] >= math.ceil(WIN_TARGET / 2):
 							opponent_potential_wins += 1
 
 		# Check diagonals
@@ -258,12 +239,12 @@ class SmartAgent(Agent):
 						if self.player_order + 1 in diag and 1 - self.player_order + 1 not in diag:
 							unique, countVal = np.unique(diag, return_counts=True)
 							counts = dict(zip(unique, countVal))
-							if counts[self.player_order + 1] >= WIN_TARGET // 2:
+							if counts[self.player_order + 1] >= math.ceil(WIN_TARGET / 2):
 								player_potential_wins += 1
 						elif 1 - self.player_order + 1 in diag and self.player_order + 1 not in diag:
 							unique, countVal = np.unique(diag, return_counts=True)
 							counts = dict(zip(unique, countVal))
-							if counts[1 - self.player_order + 1] >= WIN_TARGET // 2:
+							if counts[1 - self.player_order + 1] >= math.ceil(WIN_TARGET / 2):
 								opponent_potential_wins += 1
 
 		# The score is the difference between the potential wins
@@ -272,9 +253,9 @@ class SmartAgent(Agent):
 
  
 	def minimax(self, depth, alpha, beta, isMax, lastMove, maxDepth):
-		state = tuple(map(tuple, self.map.cells))
-		if (state, depth, isMax) in self.memo:
-			return self.memo[(state, depth, isMax)]
+		# state = tuple(map(tuple, self.map.cells))
+		# if (state, depth, isMax) in self.memo:
+		# 	return self.memo[(state, depth, isMax)]
 
 		winner = self.checkWinner()
 		if winner == self.player_order + 1:
@@ -299,11 +280,13 @@ class SmartAgent(Agent):
 		bestScore = -math.inf if isMax else math.inf
 		# empty_cells = np.where(np.array(self.map.cells) == 0)
 		# for i, j in zip(*empty_cells):
+		window_size = 3
+
 		# Calculate the boundaries of the window
-		start_i = max(0, lastMove[0] - 1)
-		end_i = min(self.map.h, lastMove[0] + 2)
-		start_j = max(0, lastMove[1] - 1)
-		end_j = min(self.map.w, lastMove[1] + 2)
+		start_i = max(0, lastMove[0] - window_size // 2)
+		end_i = min(self.map.h, start_i + window_size)
+		start_j = max(0, lastMove[1] - window_size // 2)
+		end_j = min(self.map.w, start_j + window_size)
 
 		for i in range(start_i, end_i):
 			for j in range(start_j, end_j):
@@ -327,7 +310,7 @@ class SmartAgent(Agent):
 
 					if beta <= alpha:
 						break
-		self.memo[(state, depth, isMax)] = bestScore
+		# self.memo[(state, depth, isMax)] = bestScore
 		return bestScore
 
 	def show(self):
@@ -341,12 +324,13 @@ class SmartAgent(Agent):
 	def findBestMove(self, lastMove):
 		bestScore = -math.inf
 		bestMove = (-1, -1)
+		window_size = 3
 
 		# Calculate the boundaries of the window
-		start_i = max(0, lastMove[0] - 1)
-		end_i = min(self.map.h, lastMove[0] + 2)
-		start_j = max(0, lastMove[1] - 1)
-		end_j = min(self.map.w, lastMove[1] + 2)
+		start_i = max(0, lastMove[0] - window_size // 2)
+		end_i = min(self.map.h, start_i + window_size)
+		start_j = max(0, lastMove[1] - window_size // 2)
+		end_j = min(self.map.w, start_j + window_size)
 
 		for i in range(start_i, end_i):
 			for j in range(start_j, end_j):
