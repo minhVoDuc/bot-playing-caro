@@ -21,6 +21,8 @@ class RandomAgent(Agent):
 	def choose_cell(self):
 		print("Random chose:")
 		x, y = randint(0, self.map.h), randint(0, self.map.w)
+		while self.map.is_empty(x, y):
+			x, y = randint(0, self.map.h), randint(0, self.map.w)			
 		return x, y
 
 
