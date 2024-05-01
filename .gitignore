@@ -161,3 +161,4 @@ cython_debug/
 
 ./res.txt
 ./res2.txt
+/.vscode

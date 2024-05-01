@@ -1,5 +1,6 @@
 import numpy as np
 import math
+from random import randint
 
 WIN_TARGET = 5
 
@@ -14,7 +15,14 @@ class Agent:
 		pass
 
 class RandomAgent(Agent):
-	pass
+	def __init__(self, map, order):
+		Agent.__init__(self, map, order)
+	
+	def choose_cell(self):
+		print("Random chose:")
+		x, y = randint(0, self.map.h), randint(0, self.map.w)
+		return x, y
+
 
 class SmartAgent(Agent):
 	def __init__(self, map, order):
