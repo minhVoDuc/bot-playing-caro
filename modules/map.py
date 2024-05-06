@@ -8,6 +8,12 @@ class Map:
 	def get(self):
 		return self.cells
 	
+	def get(self, x, y):
+		return self.cells[x][y]
+	
+	def get_size(self):
+		return self.h, self.w
+	
 	def is_empty(self, x, y):
 		return self.cells[x][y] == 0
 	

@@ -18,11 +18,11 @@ class RandomAgent(Agent):
 	def __init__(self, map, order):
 		Agent.__init__(self, map, order)
 	
-	def choose_cell(self):
+	def choose_cell(self, lastMove):
 		print("Random chose:")
-		x, y = randint(0, self.map.h), randint(0, self.map.w)
-		while self.map.is_empty(x, y):
-			x, y = randint(0, self.map.h), randint(0, self.map.w)			
+		x, y = randint(0, self.map.h-1), randint(0, self.map.w-1)
+		while not self.map.is_empty(x, y):
+			x, y = randint(0, self.map.h-1), randint(0, self.map.w-1)			
 		return x, y
 
 

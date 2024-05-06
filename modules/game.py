@@ -2,10 +2,10 @@ from modules.map import Map
 import modules.agent as player
 
 def standardize(s):
-  # if s<20:
-  #   s = 20
-  if s>100:
-    s = 100
+  if s<9:
+    s = 9
+  if s>30:
+    s = 30
   return s
 
 def select_player_type(map, order):
@@ -23,13 +23,16 @@ def select_player_type(map, order):
       print('Insert error! Retry!')
   return p
 
+def check_avai(x,y,h,w):
+  return x >= 0 and y >=0 and x < h and y < w
+
 class Game:
   def __init__(self):
     # create map
-    h = standardize(int(input('Insert map height (20-100): ')))
-    w = standardize(int(input('Insert map width (20-100): ')))
+    h = standardize(int(input('Insert map height (9-30): ')))
+    w = standardize(int(input('Insert map width (9-30): ')))
     self.map = Map(h, w)
-    self.lastMove = (-1, -1)
+    self.lastMove = [(-1, -1), (-1, -1)]
     # select player type [Human, Random or Smart]
     self.p = []
     for i in range(2):
@@ -44,9 +47,40 @@ class Game:
     pass
 
   def play(self, i):
-    (x,y) = self.p[i].choose_cell(self.lastMove)
-    self.lastMove = (x,y)
+    (x,y) = self.p[i].choose_cell(self.lastMove[i])
+    self.lastMove[i] = (x,y)
     self.map.play(i+1, x, y)
 
-  def check(self, p):
-    pass 
+  def check_win(self, p):
+    (x,y) = self.lastMove[p]
+    h, w = self.map.get_size()
+    scores, hi_scores, x_, y_ = [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]
+    move_type = [-1, 1, 0, 1, 1]
+    # print(f'Checking player {p} at ({x}, {y})')
+    for i in range (-4,5):
+      for j in range(4):
+        x_[j], y_[j] = x+move_type[j]*i, y+move_type[j+1]*i
+        # print(f'[type {j}] - pos ({x_[j]}, {y_[j]})')
+
+        if check_avai(x_[j], y_[j], h, w):
+          if self.map.get(x_[j],y_[j])-1 == p:
+            scores[j] += 1
+            if i == 4:
+              if scores[j] > hi_scores[j]:
+                hi_scores[j] = scores[j]
+          else:
+            if scores[j] > hi_scores[j]:
+              hi_scores[j] = scores[j]
+            scores[j] = 0
+        else:
+          if scores[j] > hi_scores[j]:
+            hi_scores[j] = scores[j]
+          scores[j] = 0
+
+    # print('score', score)
+    # print('hi-score', hi_score)
+    for score in hi_scores:
+      if score > 4: 
+        return True
+      
+    return False
