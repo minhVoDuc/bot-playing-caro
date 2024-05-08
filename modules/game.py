@@ -47,7 +47,7 @@ class Game:
     pass
 
   def play(self, i):
-    (x,y) = self.p[i].choose_cell(self.lastMove[i])
+    (x,y) = self.p[i].choose_cell(self.lastMove[1-i])
     self.lastMove[i] = (x,y)
     self.map.play(i+1, x, y)
 
