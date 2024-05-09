@@ -41,16 +41,20 @@ class Game:
 
     # init winner - default 0: no winner
     self.winner = 0
-  
+    self.current_player = 0
   def verify(self, x, y):
     # self.map.is_empty
     pass
 
-  def play(self, i):
-    (x,y) = self.p[i].choose_cell(self.lastMove[1-i])
-    self.lastMove[i] = (x,y)
-    self.map.play(i+1, x, y)
-
+#  def play(self, i):
+#    (x,y) = self.p[i].choose_cell(self.lastMove[1-i])
+#    self.lastMove[i] = (x,y)
+#    self.map.play(i+1, x, y)
+  def play(self, x, y):
+    self.p[self.current_player].choose_cell(self.lastMove[1 - self.current_player], x, y)
+    self.lastMove[self.current_player] = (x, y)
+    self.map.play(self.current_player + 1, x, y)
+    self.current_player = 1 - self.current_player  # Switch player after each move
   def check_win(self, p):
     (x,y) = self.lastMove[p]
     h, w = self.map.get_size()
