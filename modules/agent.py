@@ -216,6 +216,9 @@ class SmartAgent(Agent):
 			row_flag = 0
 			col_flag = 0
 			diag_flag = 0
+			optimize_flag_2 = 0
+			optimize_flag_3 = 0
+
 			for j in range(self.map.w - WIN_TARGET + 1):
 				row = tmp_map[i, j:j+WIN_TARGET]
 				col = tmp_map[j:j+WIN_TARGET, i]
@@ -226,22 +229,30 @@ class SmartAgent(Agent):
 						unique, countVal = np.unique(row, return_counts=True)
 						counts = dict(zip(unique, countVal))
 						if counts[self.player_order + 1] >= 4: #math.ceil(WIN_TARGET / 2):
+							player_potential_wins += 3
+						elif counts[self.player_order + 1] == 3 and optimize_flag_3 == 0: #math.ceil(WIN_TARGET / 2):
+							player_potential_wins += 2
+							optimize_flag_3 = 1
+						elif counts[self.player_order + 1] == 2 and optimize_flag_2 == 0: #math.ceil(WIN_TARGET / 2):
 							player_potential_wins += 1
+							optimize_flag_2 = 1
 					if 1 - self.player_order + 1 in row and self.player_order + 1 not in row:
 						unique, countVal = np.unique(row, return_counts=True)
 						counts = dict(zip(unique, countVal))
 						if counts[1 - self.player_order + 1] >= 4 and row_flag == 0: #math.ceil(WIN_TARGET / 2):
 							#print(f"Count: {counts[1 - self.player_order + 1]}")
 							# print(f"    FLAG: {row_flag}")
-							opponent_potential_wins += 2
+							opponent_potential_wins += 4
 							# print(f"	EVAL POS: {i, j}, FLAG; {row_flag}, TYPE: +2, POTENTIAL: {opponent_potential_wins}")
 				elif 1 - self.player_order + 1 in row and self.player_order + 1 in row:
 					unique, countVal = np.unique(row, return_counts=True)
 					counts = dict(zip(unique, countVal))
+					if counts[self.player_order + 1] >= 4: #math.ceil(WIN_TARGET / 2):
+						player_potential_wins += 3
 					if counts[1 - self.player_order + 1] >= 4 and row_flag == 0: #math.ceil(WIN_TARGET / 2):
 						#print(f"Count: {counts[1 - self.player_order + 1]}")
 						# print(f"    FLAG: {row_flag}")
-						opponent_potential_wins += 1
+						opponent_potential_wins += 3
 						row_flag = 1
 						# print(f"	EVAL POS: {i, j}, FLAG; {row_flag}, TYPE: +1, POTENTIAL: {opponent_potential_wins}")
 				
@@ -251,17 +262,27 @@ class SmartAgent(Agent):
 						unique, countVal = np.unique(col, return_counts=True)
 						counts = dict(zip(unique, countVal))
 						if counts[self.player_order + 1] >= 4: #math.ceil(WIN_TARGET / 2):
+							player_potential_wins += 3
+						elif counts[self.player_order + 1] == 3 and optimize_flag_3 == 0: #math.ceil(WIN_TARGET / 2):
+							player_potential_wins += 2
+							optimize_flag_3 = 1
+						elif counts[self.player_order + 1] == 2 and optimize_flag_2 == 0: #math.ceil(WIN_TARGET / 2):
+							# print(f"	COUNTS: {counts}")
 							player_potential_wins += 1
+							# print(f"	PLAYER: {player_potential_wins}")
+							optimize_flag_2 = 1
 					if 1 - self.player_order + 1 in col and self.player_order + 1 not in col:
 						unique, countVal = np.unique(col, return_counts=True)
 						counts = dict(zip(unique, countVal))
 						if counts[1 - self.player_order + 1] >= 4 and col_flag == 0: #math.ceil(WIN_TARGET / 2):
-							opponent_potential_wins += 2
+							opponent_potential_wins += 4
 				elif 1 - self.player_order + 1 in col and self.player_order + 1 in col:
 					unique, countVal = np.unique(col, return_counts=True)
 					counts = dict(zip(unique, countVal))
+					if counts[self.player_order + 1] >= 4: #math.ceil(WIN_TARGET / 2):
+						player_potential_wins += 3
 					if counts[1 - self.player_order + 1] >= 4 and col_flag == 0: #math.ceil(WIN_TARGET / 2):
-						opponent_potential_wins += 1
+						opponent_potential_wins += 3
 						col_flag = 1
 
 		# Check diagonals
@@ -275,17 +296,25 @@ class SmartAgent(Agent):
 							unique, countVal = np.unique(diag, return_counts=True)
 							counts = dict(zip(unique, countVal))
 							if counts[self.player_order + 1] >= 4: #math.ceil(WIN_TARGET / 2):
+								player_potential_wins += 3
+							elif counts[self.player_order + 1] == 3 and optimize_flag_3 == 0: #math.ceil(WIN_TARGET / 2):
+								player_potential_wins += 2
+								optimize_flag_3 = 1
+							elif counts[self.player_order + 1] == 2 and optimize_flag_2 == 0: #math.ceil(WIN_TARGET / 2):
 								player_potential_wins += 1
+								optimize_flag_2 = 1
 						if 1 - self.player_order + 1 in diag and self.player_order + 1 not in diag:
 							unique, countVal = np.unique(diag, return_counts=True)
 							counts = dict(zip(unique, countVal))
 							if counts[1 - self.player_order + 1] >= 4 and diag_flag == 0: #math.ceil(WIN_TARGET / 2):
-								opponent_potential_wins += 2
+								opponent_potential_wins += 4
 					elif 1 - self.player_order + 1 in diag and self.player_order + 1 in diag:
 						unique, countVal = np.unique(diag, return_counts=True)
 						counts = dict(zip(unique, countVal))
+						if counts[self.player_order + 1] >= 4: #math.ceil(WIN_TARGET / 2):
+							player_potential_wins += 3
 						if counts[1 - self.player_order + 1] >= 4 and diag_flag == 0: #math.ceil(WIN_TARGET / 2):
-							opponent_potential_wins += 1
+							opponent_potential_wins += 3
 							diag_flag = 1
 
 		# The score is the difference between the potential wins
@@ -338,13 +367,13 @@ class SmartAgent(Agent):
 					self.show()
 					score = self.minimax(depth + 1, alpha, beta, not isMax, (i,j), maxDepth)
 					self.map.cells[i][j] = 0
-
 					if isMax:
 						# f.write(f"CURRENT SCORE MAX VS CANDIDATE: {(i,j)}, {bestScore}, {score}\n")
 						bestScore = max(score, bestScore)
 						# f.write(f"BEST SCORE MINIMAX AFTER: {(i,j)}, {isMax}, {bestScore}\n")
 						alpha = max(alpha, score)
 					else:
+						# print(f"Best Score: {bestScore}")
 						# f.write(f"CURRENT SCORE MIN VS CANDIDATE: {(i,j)}, {bestScore}, {score}\n")
 						bestScore = min(score, bestScore)
 						# f.write(f"BEST SCORE MINIMAX AFTER: {(i,j)}, {isMax}, {bestScore}\n")
@@ -386,7 +415,7 @@ class SmartAgent(Agent):
 					moveScore = self.minimax(0, -math.inf, math.inf, False, (i,j), maxDepth = 1)
 					self.map.cells[i][j] = 0
 					# f.write(f"MOVE SCORE AFTER MINIMAX VS BEST SCORE: {(i,j)}, {moveScore}, {bestScore}\n")
-					# print(f"POS = {i, j}, MOVE = {moveScore}, BEST = {bestScore}")
+					print(f"POS = {i, j}, MOVE = {moveScore}, BEST = {bestScore}")
 					if moveScore > bestScore:
 						bestMove = (i, j)
 						bestScore = moveScore
