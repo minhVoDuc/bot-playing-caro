@@ -13,7 +13,7 @@ def select_player_type(map, order):
   while type == 'undef':
     type = input('Choose player type ([H]uman/[R]andom/[S]mart): ')
     if type == 'H' or type == 'h' or type == 'human':
-      p = player.Human()
+      p = player.Human(map, order)
     elif type == 'R' or type == 'r' or type == 'random':
       p = player.RandomAgent(map, order)
     elif type == 'S' or type == 's' or type == 'smart':

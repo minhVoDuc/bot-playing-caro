@@ -362,10 +362,14 @@ class SmartAgent(Agent):
 		return self.findBestMove(lastMove)
 
 class Human(Agent):
-	def __init__(self):
-		pass
+	def __init__(self, map, order):
+		Agent.__init__(self, map, order)
 
 	def choose_cell(self, lastMove):
 		x = int(input('Cell x-axis: '))    
 		y = int(input('Cell y-axis: '))
+		while self.map.is_empty(x,y) == False:
+			print('Invalid move!')
+			x = int(input('Cell x-axis: '))    
+			y = int(input('Cell y-axis: '))
 		return (x,y)
