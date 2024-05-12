@@ -210,34 +210,59 @@ class SmartAgent(Agent):
 		player_potential_wins = 0
 		opponent_potential_wins = 0
 		tmp_map = np.array(self.map.cells)
-
+		
 		# Check rows and columns
 		for i in range(self.map.h):
+			row_flag = 0
+			col_flag = 0
+			diag_flag = 0
 			for j in range(self.map.w - WIN_TARGET + 1):
 				row = tmp_map[i, j:j+WIN_TARGET]
 				col = tmp_map[j:j+WIN_TARGET, i]
+				# if row_flag == 1:					
+					# print(f"    FLAG_CHANGE: {row_flag}")
 				if 0 in row:
 					if self.player_order + 1 in row and 1 - self.player_order + 1 not in row:
 						unique, countVal = np.unique(row, return_counts=True)
 						counts = dict(zip(unique, countVal))
-						if counts[self.player_order + 1] >= math.ceil(WIN_TARGET / 2):
+						if counts[self.player_order + 1] >= 4: #math.ceil(WIN_TARGET / 2):
 							player_potential_wins += 1
-					elif 1 - self.player_order + 1 in row and self.player_order + 1 not in row:
+					if 1 - self.player_order + 1 in row and self.player_order + 1 not in row:
 						unique, countVal = np.unique(row, return_counts=True)
 						counts = dict(zip(unique, countVal))
-						if counts[1 - self.player_order + 1] >= math.ceil(WIN_TARGET / 2):
-							opponent_potential_wins += 1
+						if counts[1 - self.player_order + 1] >= 4 and row_flag == 0: #math.ceil(WIN_TARGET / 2):
+							#print(f"Count: {counts[1 - self.player_order + 1]}")
+							# print(f"    FLAG: {row_flag}")
+							opponent_potential_wins += 2
+							# print(f"	EVAL POS: {i, j}, FLAG; {row_flag}, TYPE: +2, POTENTIAL: {opponent_potential_wins}")
+				elif 1 - self.player_order + 1 in row and self.player_order + 1 in row:
+					unique, countVal = np.unique(row, return_counts=True)
+					counts = dict(zip(unique, countVal))
+					if counts[1 - self.player_order + 1] >= 4 and row_flag == 0: #math.ceil(WIN_TARGET / 2):
+						#print(f"Count: {counts[1 - self.player_order + 1]}")
+						# print(f"    FLAG: {row_flag}")
+						opponent_potential_wins += 1
+						row_flag = 1
+						# print(f"	EVAL POS: {i, j}, FLAG; {row_flag}, TYPE: +1, POTENTIAL: {opponent_potential_wins}")
+				
+							
 				if 0 in col:
 					if self.player_order + 1 in col and 1 - self.player_order + 1 not in col:
 						unique, countVal = np.unique(col, return_counts=True)
 						counts = dict(zip(unique, countVal))
-						if counts[self.player_order + 1] >= math.ceil(WIN_TARGET / 2):
+						if counts[self.player_order + 1] >= 4: #math.ceil(WIN_TARGET / 2):
 							player_potential_wins += 1
-					elif 1 - self.player_order + 1 in col and self.player_order + 1 not in col:
+					if 1 - self.player_order + 1 in col and self.player_order + 1 not in col:
 						unique, countVal = np.unique(col, return_counts=True)
 						counts = dict(zip(unique, countVal))
-						if counts[1 - self.player_order + 1] >= math.ceil(WIN_TARGET / 2):
-							opponent_potential_wins += 1
+						if counts[1 - self.player_order + 1] >= 4 and col_flag == 0: #math.ceil(WIN_TARGET / 2):
+							opponent_potential_wins += 2
+				elif 1 - self.player_order + 1 in col and self.player_order + 1 in col:
+					unique, countVal = np.unique(col, return_counts=True)
+					counts = dict(zip(unique, countVal))
+					if counts[1 - self.player_order + 1] >= 4 and col_flag == 0: #math.ceil(WIN_TARGET / 2):
+						opponent_potential_wins += 1
+						col_flag = 1
 
 		# Check diagonals
 		for i in range(self.map.h - WIN_TARGET + 1):
@@ -249,16 +274,23 @@ class SmartAgent(Agent):
 						if self.player_order + 1 in diag and 1 - self.player_order + 1 not in diag:
 							unique, countVal = np.unique(diag, return_counts=True)
 							counts = dict(zip(unique, countVal))
-							if counts[self.player_order + 1] >= math.ceil(WIN_TARGET / 2):
+							if counts[self.player_order + 1] >= 4: #math.ceil(WIN_TARGET / 2):
 								player_potential_wins += 1
-						elif 1 - self.player_order + 1 in diag and self.player_order + 1 not in diag:
+						if 1 - self.player_order + 1 in diag and self.player_order + 1 not in diag:
 							unique, countVal = np.unique(diag, return_counts=True)
 							counts = dict(zip(unique, countVal))
-							if counts[1 - self.player_order + 1] >= math.ceil(WIN_TARGET / 2):
-								opponent_potential_wins += 1
+							if counts[1 - self.player_order + 1] >= 4 and diag_flag == 0: #math.ceil(WIN_TARGET / 2):
+								opponent_potential_wins += 2
+					elif 1 - self.player_order + 1 in diag and self.player_order + 1 in diag:
+						unique, countVal = np.unique(diag, return_counts=True)
+						counts = dict(zip(unique, countVal))
+						if counts[1 - self.player_order + 1] >= 4 and diag_flag == 0: #math.ceil(WIN_TARGET / 2):
+							opponent_potential_wins += 1
+							diag_flag = 1
 
 		# The score is the difference between the potential wins
 		score = player_potential_wins - opponent_potential_wins
+		#print(f"Player: {player_potential_wins}, Opponent: {opponent_potential_wins}")
 		return score
 
  
@@ -290,16 +322,16 @@ class SmartAgent(Agent):
 		bestScore = -math.inf if isMax else math.inf
 		# empty_cells = np.where(np.array(self.map.cells) == 0)
 		# for i, j in zip(*empty_cells):
-		window_size = 3
+		window_size = 5
 
 		# Calculate the boundaries of the window
-		start_i = max(0, lastMove[0] - window_size // 2)
-		end_i = min(self.map.h, start_i + window_size)
-		start_j = max(0, lastMove[1] - window_size // 2)
-		end_j = min(self.map.w, start_j + window_size)
+		# start_i = max(0, lastMove[0] - window_size // 2)
+		# end_i = min(self.map.h, start_i + window_size)
+		# start_j = max(0, lastMove[1] - window_size // 2)
+		# end_j = min(self.map.w, start_j + window_size)
 
-		for i in range(start_i, end_i):
-			for j in range(start_j, end_j):
+		for i in range(0, self.map.h): #(start_i, end_i):
+			for j in range(0, self.map.w): #(start_j, end_j):
 				if self.map.cells[i][j] == 0:
 					self.map.cells[i][j] = self.player_order + 1 if isMax else 1 - self.player_order + 1
 					# f.write(f"ITERATE MINIMAX: {(i,j)}, {isMax}\n")
@@ -334,31 +366,37 @@ class SmartAgent(Agent):
 	def findBestMove(self, lastMove):
 		bestScore = -math.inf
 		bestMove = (-1, -1)
-		window_size = 3
+		window_size = 5
 
 		# Calculate the boundaries of the window
-		start_i = max(0, lastMove[0] - window_size // 2)
-		end_i = min(self.map.h, start_i + window_size)
-		start_j = max(0, lastMove[1] - window_size // 2)
-		end_j = min(self.map.w, start_j + window_size)
+		# start_i = max(0, lastMove[0] - window_size // 2)
+		# end_i = min(self.map.h, start_i + window_size)
+		# start_j = max(0, lastMove[1] - window_size // 2)
+		# end_j = min(self.map.w, start_j + window_size)
+  
+		# print(f"Start from i = {start_i} to {end_i}")
+		# print(f"Start from j = {start_j} to {end_j}")
 
-		for i in range(start_i, end_i):
-			for j in range(start_j, end_j):
+		for i in range(0, self.map.h): #(start_i, end_i):
+			for j in range(0, self.map.w): #(start_j, end_j):
 				if self.map.cells[i][j] == 0:
 					self.map.cells[i][j] = self.player_order + 1
 					# f.write(f"SEARCH NEW STATE: {(i, j)}\n")
 					self.show()
-					moveScore = self.minimax(0, -math.inf, math.inf, False, (i,j), maxDepth = 4)
+					moveScore = self.minimax(0, -math.inf, math.inf, False, (i,j), maxDepth = 1)
 					self.map.cells[i][j] = 0
 					# f.write(f"MOVE SCORE AFTER MINIMAX VS BEST SCORE: {(i,j)}, {moveScore}, {bestScore}\n")
+					# print(f"POS = {i, j}, MOVE = {moveScore}, BEST = {bestScore}")
 					if moveScore > bestScore:
 						bestMove = (i, j)
 						bestScore = moveScore
-		# f.close()
+		#f.close()
 		return bestMove
 
 	def choose_cell(self, lastMove):
 		print("AI chose:")
+		if lastMove == (-1, -1):
+			return (self.map.h // 2, self.map.w // 2)
 		return self.findBestMove(lastMove)
 
 class Human(Agent):
