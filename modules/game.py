@@ -56,12 +56,9 @@ class Game:
     h, w = self.map.get_size()
     scores, hi_scores, x_, y_ = [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]
     move_type = [-1, 1, 0, 1, 1]
-    # print(f'Checking player {p} at ({x}, {y})')
     for i in range (-4,5):
       for j in range(4):
         x_[j], y_[j] = x+move_type[j]*i, y+move_type[j+1]*i
-        # print(f'[type {j}] - pos ({x_[j]}, {y_[j]})')
-
         if check_avai(x_[j], y_[j], h, w):
           if self.map.get(x_[j],y_[j])-1 == p:
             scores[j] += 1
@@ -77,8 +74,6 @@ class Game:
             hi_scores[j] = scores[j]
           scores[j] = 0
 
-    # print('score', score)
-    # print('hi-score', hi_score)
     for score in hi_scores:
       if score > 4: 
         return True
