@@ -415,7 +415,7 @@ class SmartAgent(Agent):
 					moveScore = self.minimax(0, -math.inf, math.inf, False, (i,j), maxDepth = 1)
 					self.map.cells[i][j] = 0
 					# f.write(f"MOVE SCORE AFTER MINIMAX VS BEST SCORE: {(i,j)}, {moveScore}, {bestScore}\n")
-					print(f"POS = {i, j}, MOVE = {moveScore}, BEST = {bestScore}")
+					# print(f"POS = {i, j}, MOVE = {moveScore}, BEST = {bestScore}")
 					if moveScore > bestScore:
 						bestMove = (i, j)
 						bestScore = moveScore
