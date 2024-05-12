@@ -9,6 +9,6 @@ while True:
   new_game.play(p)
   new_game.map.show()
   if new_game.check_win(p):
-    print(f'Winner is player {p}!')
+    print(f'Winner is player {p} after play at {new_game.lastMove[p]}!')
     break
   p = 1 - p

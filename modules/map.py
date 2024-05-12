@@ -24,7 +24,12 @@ class Map:
 		for line in self.cells:
 			p_line = ""
 			for cell in line:
-				p_line = p_line + str(cell) + ' '
+				move = " "
+				if cell == 1:
+					move = 'x'
+				elif cell == 2:
+					move = 'o'
+				p_line = p_line + move + ' | '
 			print(p_line)
 		print()
 
